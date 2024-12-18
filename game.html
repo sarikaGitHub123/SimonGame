@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Touchable boxes in Matrix Form</title>
+    <style>
+        /* Custom box styling */
+        .box {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin: 6px;
+            overflow: hidden;
+            border: 5px solid black; /* Border width, style, and color */
+        }
+
+        .box1 {
+            background-color: red;
+        }
+
+        .box2 {
+            background-color: blue;
+        }
+
+        .box3 {
+            background-color: green;
+        }
+
+        .box4 {
+            background-color: yellow;
+        }
+
+        /* For layout of the matrix */
+        .box-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .box-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        #headText {
+            display: flex;
+            justify-content: center;
+            font-weight: 700;
+            color: black;
+            font-size: large;
+        }
+    </style>
+</head>
+
+<body>
+    <span id="headText">Press a key to start</span>
+    <div class="container">
+        <div class="box-container">
+            <div class="box box1" id=1 onclick=boxClicked(event)></div>
+            <div class="box box2" id=2 onclick=boxClicked(event)></div>
+        </div>
+        <div class="box-container">
+            <div class="box box3" id=3 onclick=boxClicked(event)></div>
+            <div class="box box4" id=4 onclick=boxClicked(event)></div>
+        </div>
+    </div>
+
+    <script>
+        const colorObject = { 1: 'red', 2: 'blue', 3: 'green', 4: 'yellow' }
+        let isGameStarted = false
+        let colorsToClick = []
+        let clickedColors = []
+        let count = 1
+        let addedColorCount = 0
+        const heading = document.getElementById('headText')
+
+        // this function sets all values to initial values
+        const setValuesToInitial = () => {
+            colorsToClick = []
+            clickedColors = []
+            count = 1
+            addedColorCount = 0
+            isGameStarted = false
+        }
+
+        // function calls when keydown event occurs
+        function handleKeyPress(event) {
+            document.removeEventListener('keydown', handleKeyPress); // removing eventListner after the event triggered once
+            isGameStarted = true         // Value to start game
+            const randomColor = Math.floor(Math.random() * Object.keys(colorObject).length) + 1;  // to get a random value to choose a color
+            colorsToClick.push(randomColor)
+            firstBox = document.getElementById(randomColor)
+            firstBox.style.opacity = 0.1
+            const changeStyleTimeout = setTimeout(() => {
+                firstBox.style.opacity = 1
+                clearTimeout(changeStyleTimeout)
+            }, 300)
+            heading.innerText = `Level ${count}`
+        }
+        
+        // Initial keydown event listener
+        document.addEventListener('keydown', handleKeyPress);
+       
+        // function when color box in clicked
+        function boxClicked(event) {
+            if (!isGameStarted) return  // checks if keydown event triggred or not
+            const randomColor = Math.floor(Math.random() * Object.keys(colorObject).length) + 1;
+            const clickedBox = event.target  
+            clickedColors.push(clickedBox.id)
+            clickedBox.style.opacity = 0.6
+            const changeClikedBoxStyleTimeout = setTimeout(() => {
+                clickedBox.style.opacity = 1
+                clearTimeout(changeClikedBoxStyleTimeout)
+            }, 300)
+            let a = clickedColors[addedColorCount]
+            let b = colorsToClick[addedColorCount]
+
+            // condition If colors order mismatched
+            if (a != b) {
+                heading.innerText = 'Game Over, Press Any Key to Restart'
+                setValuesToInitial()
+                document.addEventListener('keydown', handleKeyPress);
+                return
+            }
+            addedColorCount++
+            // condition for entering next level
+            if (colorsToClick.length == clickedColors.length) {
+                addedColorCount = 0
+                count++
+                heading.innerText = `Level ${count}`
+                colorsToClick.push(randomColor)
+                firstBox = document.getElementById(randomColor)
+                const wrappedSetTimeout = setTimeout(() => {
+                    firstBox.style.opacity = 0.1
+                    const changeStyleTimeout = setTimeout(() => {
+                        firstBox.style.opacity = 1
+                        clearTimeout(changeStyleTimeout)
+                    }, 300)
+                    clearTimeout(wrappedSetTimeout)
+                }, 500)
+
+                clickedColors = []
+            }
+        }
+
+    </script>
+</body>
+
+</html>
